@@ -93,14 +93,14 @@ Every training set (`train_a`, `train_b`, `train_c`, `train_d`) goes through the
 ### 5.1 Pre-label
 
 ```bash
-python3 scripts/auto_label.py                   # YOLOv8n  -> data/labels_raw/,   zip/<set>_yolo.zip
-python3 scripts/auto_label_dino.py --role all   # G. DINO  -> data/labels_gdino/, zip/<set>_gdino.zip
+python3 scripts/auto_label.py                   # YOLOv8n  -> data/yolo/labels/,  data/yolo/cvat_zip/<set>_yolo.zip
+python3 scripts/auto_label_dino.py --role all   # G. DINO  -> data/gdino/labels/, data/gdino/cvat_zip/<set>_gdino.zip
 ```
 
 To rebuild the archives without re-running a model:
 
 ```bash
-python3 scripts/make_cvat_zip.py --role all --source raw
+python3 scripts/make_cvat_zip.py --role all --source yolo
 python3 scripts/make_cvat_zip.py --role all --source gdino
 ```
 
@@ -118,7 +118,7 @@ Tasks > `+` > Create a new task:
 
 ### 5.3 Import pre-labels
 
-Actions > Upload annotations > format **YOLO 1.1** > mode **Replace** > choose `zip/<set>_yolo.zip` or `zip/<set>_gdino.zip` > OK > confirm.
+Actions > Upload annotations > format **YOLO 1.1** > mode **Replace** > choose `data/yolo/cvat_zip/<set>_yolo.zip` or `data/gdino/cvat_zip/<set>_gdino.zip` > OK > confirm.
 
 Check: in the Requests tab the import is Finished with no error; in the job editor, Info shows the same number of boxes as the source `.txt` files (for example `train_a`: 56 from YOLOv8n).
 
@@ -134,15 +134,16 @@ Actions > Export task dataset > **YOLO 1.1**, images off. Unzip and copy `obj_tr
 
 ## 6. Where the data is stored
 
-| Path                           | Content                                       | In git |
-| ------------------------------ | --------------------------------------------- | ------ |
-| `data/raw_videos/<set>/`       | Source videos                                 | No     |
-| `data/frames/<set>/`           | Frames `frame_0001.jpg`, ...                  | Yes    |
-| `data/labels_raw/<set>/`       | YOLOv8n pre-labels, one `.txt` per frame      | Yes    |
-| `data/labels_gdino/<set>/`     | Grounding DINO pre-labels                     | Yes    |
-| `data/labels_corrected/<set>/` | **Final labels** after review (used to train) | Yes    |
-| `zip/`                         | CVAT import archives (generated)              | No     |
-| CVAT Docker volumes            | Tasks and annotations in progress             | No     |
+| Path                           | Content                                       | In git              |
+| ------------------------------ | --------------------------------------------- | ------------------- |
+| `data/raw_videos/<set>/`       | Source videos                                 | No                  |
+| `data/frames/<set>/`           | Frames `frame_0001.jpg`, ...                  | Yes                 |
+| `data/yolo/labels/<set>/`      | YOLOv8n pre-labels, one `.txt` per frame      | Yes                 |
+| `data/yolo/cvat_zip/`          | CVAT import archives `<set>_yolo.zip`         | No (generated)      |
+| `data/gdino/labels/<set>/`     | Grounding DINO pre-labels                     | Yes                 |
+| `data/gdino/cvat_zip/`         | CVAT import archives `<set>_gdino.zip`        | No (generated)      |
+| `data/labels_corrected/<set>/` | **Final labels** after review (used to train) | TODO (after review) |
+| CVAT Docker volumes            | Tasks and annotations in progress             | No                  |
 
 Label file format (YOLO): one line per box, `0 x_center y_center width height`, all values normalized to 0-1. The `.txt` file has the same name as its frame.
 

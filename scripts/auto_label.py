@@ -6,7 +6,7 @@
   - Прогоняє через YOLOv8n (ваги COCO скачаються автоматично при першому запуску)
   - Залишає тільки боксии класів car/truck/bus/motorcycle
   - Перемаплює їх усі в один клас "vehicle" (id = 0)
-  - Зберігає розмітку у форматі YOLO .txt в data/labels_raw/<role>/
+  - Зберігає розмітку у форматі YOLO .txt в data/yolo/labels/<role>/
     (один .txt на кадр, формат рядка: "0 x_center y_center width height", нормалізовано 0..1)
 
 Використання:
@@ -27,7 +27,7 @@ VEHICLE_COCO_CLASSES = {"car", "truck", "bus", "motorcycle"}
 VEHICLE_CLASS_ID = 0  # єдиний клас у нашій задачі
 
 FRAMES_DIR = Path("data/frames")
-LABELS_RAW_DIR = Path("data/labels_raw")
+LABELS_DIR = Path("data/yolo/labels")
 
 DEFAULT_ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
@@ -38,7 +38,7 @@ def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> No
         print(f"⚠️  {frames_dir} не існує — пропускаю {role}")
         return
 
-    out_dir = LABELS_RAW_DIR / role
+    out_dir = LABELS_DIR / role
     out_dir.mkdir(parents=True, exist_ok=True)
 
     frame_paths = sorted(frames_dir.glob("*.jpg"))
@@ -78,7 +78,7 @@ def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> No
         f"({frames_with_boxes} кадрів з хоча б одним боксом)"
     )
     if make_zip:
-        build_zip(role, "raw")
+        build_zip(role, "yolo")
 
 
 def main():
@@ -93,7 +93,7 @@ def main():
     )
     parser.add_argument(
         "--no-zip", action="store_true",
-        help="Не створювати zip для CVAT у zip/ після розмітки.",
+        help="Не створювати zip для CVAT у data/yolo/cvat_zip/ після розмітки.",
     )
     args = parser.parse_args()
 
@@ -105,8 +105,8 @@ def main():
     for role in roles:
         label_role(model, role, args.conf, make_zip=not args.no_zip)
 
-    print("\nГотово. Сира розмітка збережена в data/labels_raw/<role>/")
-    print("zip для CVAT: zip/<role>_yolo.zip. Наступний крок: імпорт у CVAT для перевірки й корекції.")
+    print("\nГотово. Сира розмітка збережена в data/yolo/labels/<role>/")
+    print("zip для CVAT: data/yolo/cvat_zip/<role>_yolo.zip. Наступний крок: імпорт у CVAT для перевірки й корекції.")
 
 
 if __name__ == "__main__":

@@ -57,16 +57,19 @@ All frames are `.jpg`, shot from a drone at altitude. Vehicles are very small (a
 
 ### Project layout
 
-| Path                     | Content                                       | In git |
-| ------------------------ | --------------------------------------------- | ------ |
-| `data/raw_videos/`       | Source videos                                 | No     |
-| `data/frames/<set>/`     | Extracted frames                              | Yes    |
-| `data/labels_raw/`       | Pre-labels from YOLOv8n (YOLO txt)            | Yes    |
-| `data/labels_gdino/`     | Pre-labels from Grounding DINO (YOLO txt)     | Yes    |
-| `data/labels_corrected/` | Final labels after manual review in CVAT      | Yes    |
-| `scripts/`               | Frame extraction, pre-labeling, CVAT zips     | Yes    |
-| `zip/`                   | CVAT import archives (generated)              | No     |
-| `docs/`                  | Annotation guidelines and images              | Yes    |
+Shared data (frames) is kept once; everything produced by a model lives in that model's own folder.
+
+| Path                          | Content                                         | In git              |
+| ----------------------------- | ----------------------------------------------- | ------------------- |
+| `data/raw_videos/<set>/`      | Source videos                                   | No                  |
+| `data/frames/<set>/`          | Extracted frames (shared by both models)        | Yes                 |
+| `data/yolo/labels/<set>/`     | Pre-labels from YOLOv8n (YOLO txt)              | Yes                 |
+| `data/yolo/cvat_zip/`         | CVAT import archives `<set>_yolo.zip`           | No (generated)      |
+| `data/gdino/labels/<set>/`    | Pre-labels from Grounding DINO (YOLO txt)       | Yes                 |
+| `data/gdino/cvat_zip/`        | CVAT import archives `<set>_gdino.zip`          | No (generated)      |
+| `data/labels_corrected/<set>/`| Final labels after manual review in CVAT        | TODO (after review) |
+| `scripts/`                    | Frame extraction, pre-labeling, CVAT zips       | Yes                 |
+| `docs/`                       | Annotation guidelines and images                | Yes                 |
 
 ---
 
@@ -95,7 +98,7 @@ python3 scripts/auto_label.py                   # YOLOv8n, all sets, conf=0.25
 python3 scripts/auto_label_dino.py --role all   # Grounding DINO tiny, all sets
 ```
 
-Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`, normalized) and builds a CVAT import archive in `zip/`. Weights download on first run (`yolov8n.pt`; `IDEA-Research/grounding-dino-tiny`, about 700 MB).
+Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`, normalized) into `data/<model>/labels/<set>/` and builds a CVAT import archive in `data/<model>/cvat_zip/`. Weights download on first run (`yolov8n.pt`; `IDEA-Research/grounding-dino-tiny`, about 700 MB).
 
 ### Pre-labeling comparison (train_a, 58 frames)
 

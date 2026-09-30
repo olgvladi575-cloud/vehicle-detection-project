@@ -1,11 +1,11 @@
 """
 Збирає zip для імпорту в CVAT (формат YOLO 1.1) з кадрів і YOLO-розмітки.
 
-Результат: zip/train_a_yolo.zip, zip/train_a_gdino.zip, ... (усередині проєкту).
+Результат: data/yolo/cvat_zip/train_a_yolo.zip, data/gdino/cvat_zip/train_a_gdino.zip, ...
 
 Викликається автоматично з auto_label.py / auto_label_dino.py,
 а також окремо:
-  python3 scripts/make_cvat_zip.py --role train_a --source raw     # YOLOv8n
+  python3 scripts/make_cvat_zip.py --role train_a --source yolo    # YOLOv8n
   python3 scripts/make_cvat_zip.py --role all --source gdino       # Grounding DINO
 """
 
@@ -15,14 +15,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]  # корінь проєкту
 FRAMES_DIR = ROOT / "data" / "frames"
-ZIP_DIR = ROOT / "zip"
 ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
-# source -> (папка з розміткою, суфікс у назві архіву)
-SOURCES = {
-    "raw": (ROOT / "data" / "labels_raw", "yolo"),
-    "gdino": (ROOT / "data" / "labels_gdino", "gdino"),
-}
+# source = модель; дані кожної моделі лежать у data/<source>/:
+#   labels/<role>/*.txt  — розмітка
+#   cvat_zip/            — архіви для імпорту в CVAT
+SOURCES = ["yolo", "gdino"]
 
 OBJ_DATA = (
     "classes = 1\n"
@@ -33,17 +31,18 @@ OBJ_DATA = (
 )
 
 
-def build_zip(role: str, source: str = "raw") -> Path | None:
-    """Створює zip/<role>_<suffix>.zip. Повертає шлях до архіву або None."""
-    labels_root, suffix = SOURCES[source]
+def build_zip(role: str, source: str = "yolo") -> Path | None:
+    """Створює data/<source>/cvat_zip/<role>_<source>.zip. Повертає шлях до архіву або None."""
+    source_dir = ROOT / "data" / source
     frames = sorted((FRAMES_DIR / role).glob("frame_*.jpg"))
-    labels_dir = labels_root / role
+    labels_dir = source_dir / "labels" / role
     if not frames or not labels_dir.exists():
         print(f"⚠️  {role}: немає кадрів або розмітки ({labels_dir}) — zip не створено")
         return None
 
-    ZIP_DIR.mkdir(exist_ok=True)
-    out = ZIP_DIR / f"{role}_{suffix}.zip"
+    zip_dir = source_dir / "cvat_zip"
+    zip_dir.mkdir(parents=True, exist_ok=True)
+    out = zip_dir / f"{role}_{source}.zip"
     if out.exists():
         out.unlink()  # завжди збираємо з нуля
 
@@ -63,7 +62,7 @@ def build_zip(role: str, source: str = "raw") -> Path | None:
 def main():
     ap = argparse.ArgumentParser(description="Build CVAT (YOLO 1.1) import zips")
     ap.add_argument("--role", default="all", help="train_a..train_d або all")
-    ap.add_argument("--source", choices=SOURCES, default="raw", help="raw = YOLOv8n, gdino = Grounding DINO")
+    ap.add_argument("--source", choices=SOURCES, default="yolo", help="yolo = YOLOv8n, gdino = Grounding DINO")
     args = ap.parse_args()
     for role in (ROLES if args.role == "all" else [args.role]):
         build_zip(role, args.source)

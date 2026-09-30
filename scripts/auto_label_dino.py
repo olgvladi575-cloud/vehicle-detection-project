@@ -1,8 +1,8 @@
 """
 Авто-розмітка кадрів Grounding DINO (grounding-dino-tiny), лише inference.
 
-Пише YOLO .txt у data/labels_gdino/<role>/ і, якщо не задано --no-zip,
-одразу збирає zip для CVAT: zip/<role>_gdino.zip.
+Пише YOLO .txt у data/gdino/labels/<role>/ і, якщо не задано --no-zip,
+одразу збирає zip для CVAT: data/gdino/cvat_zip/<role>_gdino.zip.
 
   python3 scripts/auto_label_dino.py --role train_a
   python3 scripts/auto_label_dino.py --role all      # train_a..train_d
@@ -20,7 +20,7 @@ from make_cvat_zip import build_zip
 MODEL_ID = "IDEA-Research/grounding-dino-tiny"
 PROMPT = "car. truck. bus. motorcycle."  # нижній регістр, крапка після кожного слова
 FRAMES_DIR = Path("data/frames")
-OUT_DIR = Path("data/labels_gdino")
+OUT_DIR = Path("data/gdino/labels")
 ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
 
