@@ -1,8 +1,8 @@
 """
 Pre-labels frames with Grounding DINO (grounding-dino-tiny), inference only.
 
-Writes YOLO .txt to data/gdino/labels/<role>/ and, unless --no-zip is given,
-builds the CVAT import zip: data/gdino/cvat_zip/<role>_gdino.zip.
+Writes YOLO .txt to data/gdino_pre_labelling/labels/<role>/ and, unless --no-zip is given,
+builds the CVAT import zip: data/gdino_pre_labelling/cvat_zip/<role>_gdino.zip.
 
   python3 scripts/auto_label_dino.py --role train_a
   python3 scripts/auto_label_dino.py --role all      # train_a..train_d
@@ -21,7 +21,7 @@ MODEL_ID = "IDEA-Research/grounding-dino-tiny"
 PROMPT = "car. truck. bus. motorcycle."  # lowercase, a period after each word
 ROOT = Path(__file__).resolve().parents[1]  # project root
 FRAMES_DIR = ROOT / "data" / "frames"
-OUT_DIR = ROOT / "data" / "gdino" / "labels"
+OUT_DIR = ROOT / "data" / "gdino_pre_labelling" / "labels"
 ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
 

@@ -7,6 +7,8 @@ __pycache__/
 
 # CVAT archives (generated, large)
 *.zip
+# except CVAT exports: manual corrections, cannot be regenerated
+!data/cvat_export/*.zip
 
 # source videos (large)
 data/raw_videos/

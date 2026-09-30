@@ -6,7 +6,7 @@ What it does:
   - Runs YOLOv8n (COCO weights download automatically on first run)
   - Keeps only boxes of classes car/truck/bus/motorcycle
   - Maps them all to one class "vehicle" (id = 0)
-  - Saves YOLO .txt labels to data/yolo/labels/<role>/
+  - Saves YOLO .txt labels to data/yolo_pre_labelling/labels/<role>/
     (one .txt per frame, line format: "0 x_center y_center width height", normalized 0..1)
 
 Usage:
@@ -28,7 +28,7 @@ VEHICLE_CLASS_ID = 0  # the only class in this task
 
 ROOT = Path(__file__).resolve().parents[1]  # project root
 FRAMES_DIR = ROOT / "data" / "frames"
-LABELS_DIR = ROOT / "data" / "yolo" / "labels"
+LABELS_DIR = ROOT / "data" / "yolo_pre_labelling" / "labels"
 
 DEFAULT_ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
@@ -94,7 +94,7 @@ def main():
     )
     parser.add_argument(
         "--no-zip", action="store_true",
-        help="Do not build the CVAT zip in data/yolo/cvat_zip/ after labeling.",
+        help="Do not build the CVAT zip in data/yolo_pre_labelling/cvat_zip/ after labeling.",
     )
     args = parser.parse_args()
 
@@ -106,8 +106,8 @@ def main():
     for role in roles:
         label_role(model, role, args.conf, make_zip=not args.no_zip)
 
-    print("\nDone. Raw labels saved to data/yolo/labels/<role>/")
-    print("CVAT zip: data/yolo/cvat_zip/<role>_yolo.zip. Next step: import into CVAT for review and correction.")
+    print("\nDone. Raw labels saved to data/yolo_pre_labelling/labels/<role>/")
+    print("CVAT zip: data/yolo_pre_labelling/cvat_zip/<role>_yolo.zip. Next step: import into CVAT for review and correction.")
 
 
 if __name__ == "__main__":

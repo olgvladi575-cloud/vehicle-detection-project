@@ -1,7 +1,7 @@
 """
 Builds CVAT import zips (YOLO 1.1 format) from frames and YOLO labels.
 
-Output: data/yolo/cvat_zip/train_a_yolo.zip, data/gdino/cvat_zip/train_a_gdino.zip, ...
+Output: data/yolo_pre_labelling/cvat_zip/train_a_yolo.zip, data/gdino_pre_labelling/cvat_zip/train_a_gdino.zip, ...
 
 Called automatically by auto_label.py / auto_label_dino.py,
 or standalone:
@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]  # project root
 FRAMES_DIR = ROOT / "data" / "frames"
 ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
-# source = model; each model keeps its data in data/<source>/:
+# source = model; each model keeps its data in data/<source>_pre_labelling/:
 #   labels/<role>/*.txt  - labels
 #   cvat_zip/            - CVAT import archives
 SOURCES = ["yolo", "gdino"]
@@ -32,8 +32,8 @@ OBJ_DATA = (
 
 
 def build_zip(role: str, source: str = "yolo") -> Path | None:
-    """Creates data/<source>/cvat_zip/<role>_<source>.zip. Returns the archive path or None."""
-    source_dir = ROOT / "data" / source
+    """Creates data/<source>_pre_labelling/cvat_zip/<role>_<source>.zip. Returns the archive path or None."""
+    source_dir = ROOT / "data" / f"{source}_pre_labelling"
     frames = sorted((FRAMES_DIR / role).glob("frame_*.jpg"))
     labels_dir = source_dir / "labels" / role
     if not frames or not labels_dir.exists():
