@@ -20,6 +20,8 @@ from pathlib import Path
 
 from ultralytics import YOLO
 
+from make_cvat_zip import build_zip
+
 # COCO-класи, які вважаємо "vehicle" для цієї задачі.
 VEHICLE_COCO_CLASSES = {"car", "truck", "bus", "motorcycle"}
 VEHICLE_CLASS_ID = 0  # єдиний клас у нашій задачі
@@ -30,7 +32,7 @@ LABELS_RAW_DIR = Path("data/labels_raw")
 DEFAULT_ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
 
-def label_role(model: YOLO, role: str, conf: float) -> None:
+def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> None:
     frames_dir = FRAMES_DIR / role
     if not frames_dir.exists():
         print(f"⚠️  {frames_dir} не існує — пропускаю {role}")
@@ -75,6 +77,8 @@ def label_role(model: YOLO, role: str, conf: float) -> None:
         f"  готово: {total_boxes} боксів на {len(frame_paths)} кадрах "
         f"({frames_with_boxes} кадрів з хоча б одним боксом)"
     )
+    if make_zip:
+        build_zip(role, "raw")
 
 
 def main():
@@ -87,6 +91,10 @@ def main():
         "--conf", type=float, default=0.25,
         help="Поріг впевненості детекції (default: 0.25)",
     )
+    parser.add_argument(
+        "--no-zip", action="store_true",
+        help="Не створювати zip для CVAT у zip/ після розмітки.",
+    )
     args = parser.parse_args()
 
     print("Завантажую YOLOv8n (COCO-pretrained) — без тренування, лише inference ...")
@@ -95,10 +103,10 @@ def main():
     roles = [args.role] if args.role else DEFAULT_ROLES
 
     for role in roles:
-        label_role(model, role, args.conf)
+        label_role(model, role, args.conf, make_zip=not args.no_zip)
 
     print("\nГотово. Сира розмітка збережена в data/labels_raw/<role>/")
-    print("Наступний крок: імпорт у Label Studio / CVAT для перевірки й корекції.")
+    print("zip для CVAT: zip/<role>_yolo.zip. Наступний крок: імпорт у CVAT для перевірки й корекції.")
 
 
 if __name__ == "__main__":
