@@ -116,10 +116,10 @@ Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`
 
 ### Pre-labeling comparison (train_a, 58 frames)
 
-| Model               | Settings                                                            | Boxes | Avg per frame |
-| ------------------- | ------------------------------------------------------------------- | ----- | ------------- |
-| YOLOv8n (COCO)      | conf=0.25, default input size                                       | 56    | ~1            |
-| Grounding DINO tiny | box/text threshold 0.25, prompt `car. truck. bus. motorcycle.`, CPU | 1608  | ~28           |
+| Model               | Boxes | Avg per frame |
+| ------------------- | ----- | ------------- |
+| YOLOv8n (COCO)      | 56    | ~1            |
+| Grounding DINO tiny | 1608  | ~28           |
 
 - YOLOv8n misses most vehicles: the input is downscaled and vehicles are only a few pixels wide. Example: `frame_0032` has one box but dozens of visible vehicles.
 - Grounding DINO finds about 28x more boxes. More boxes does not mean better: some are likely false positives (shadows, road markings). A sampled precision check is **TODO**.
@@ -139,13 +139,6 @@ Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`
 - train_b (rural highway, light traffic) gives far fewer boxes per frame, which matches its sparse traffic.
 
 ### Labeling status
-
-| Set     | Pre-labeled | Corrected in CVAT |
-| ------- | ----------- | ----------------- |
-| train_a | ✅          | TODO              |
-| train_b | ✅          | TODO              |
-| train_c | ✅          | TODO              |
-| train_d | ✅          | TODO              |
 
 ---
 
