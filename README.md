@@ -13,34 +13,26 @@ The work follows four stages:
 
 📄 Annotation rules, tool and workflow: [**Annotation Guidelines**](docs/ANNOTATION_GUIDELINES.md)
 
-## Quick start
+## Pipeline
 
-Frames and model pre-labels are already in the repository, so no videos need to be downloaded.
-
-Requirements:
-
-- **Python 3.10+**
-- **Docker Desktop**, to run CVAT
-- **FFmpeg**, only to re-extract frames from videos (not needed for the steps below)
+Requirements: **Python 3.10+**, **Docker Desktop** (for CVAT), **FFmpeg** (for frame extraction). Install Python dependencies once:
 
 ```bash
-# 1. Get the project
-git clone https://github.com/olgvladi575-cloud/vehicle-detection-project.git
-cd vehicle-detection-project
-
-# 2. Create a virtual environment and install dependencies
-python3 -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
-
-# 3. Build CVAT import archives from the existing pre-labels
-python3 scripts/make_cvat_zip.py --role all --source gdino   # -> data/gdino/cvat_zip/
-python3 scripts/make_cvat_zip.py --role all --source yolo    # -> data/yolo/cvat_zip/
 ```
 
-Then start CVAT and load the archives: see [Annotation Guidelines, sections 1 and 5](docs/ANNOTATION_GUIDELINES.md#1-tool-cvat).
+All commands are run from the project root.
 
-Re-running the models is optional (the results are already in `data/*/labels/`), see [Pre-labeling](#pre-labeling).
+| Step                             | Command / action                                                                                              | Output                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1. Extract frames                | `bash scripts/extract_frames.sh` (fps=3, see [Frame extraction](#frame-extraction))                           | `data/frames/<set>/`                                              |
+| 2. Pre-label with Grounding DINO | `python3 scripts/auto_label_dino.py --role all`                                                               | `data/gdino/labels/<set>/`, `data/gdino/cvat_zip/<set>_gdino.zip` |
+| 3. Correct in CVAT               | import `<set>_gdino.zip`, fix boxes, export YOLO 1.1 ([guidelines](docs/ANNOTATION_GUIDELINES.md#5-workflow)) | `data/cvat_export/<set>.zip`                                      |
+| 4. Collect final labels          | `python3 scripts/import_cvat_export.py --role all`                                                            | `data/annotations/<set>/`                                         |
+| 5. Train                         | TODO                                                                                                          |                                                                   |
+| 6. Measure                       | TODO                                                                                                          |                                                                   |
+
+Steps 1 and 2 are already done: frames and pre-labels are in the repository, so the work can start from step 3. If step 2 is skipped, build the CVAT archives from the existing labels with `python3 scripts/make_cvat_zip.py --role all --source gdino`.
 
 ## Task
 
@@ -67,22 +59,24 @@ Public videos from Pexels. The training clips were picked to cover different sce
 
 ### Frame extraction
 
-Each video is split into frames with **FFmpeg** ([ffmpeg.org](https://ffmpeg.org)):
+Frames are already in the repository (`data/frames/<set>/`); this section documents how they were produced.
+
+Each video was downloaded from its source link into `data/raw_videos/<set>/` and split into frames with **FFmpeg** ([ffmpeg.org](https://ffmpeg.org)) at **3 frames per second** (`fps=3`), the same value for all sets.
+
+The script [scripts/extract_frames.sh](scripts/extract_frames.sh) runs this for every set:
 
 ```bash
-brew install ffmpeg
-mkdir -p data/frames/train_a
-ffmpeg -i <VIDEO_FILE>.mp4 -vf fps=<FPS> -q:v 2 -start_number 1 data/frames/train_a/frame_%04d.jpg
+bash scripts/extract_frames.sh            # all sets
+bash scripts/extract_frames.sh train_a    # one set
 ```
 
-`<FPS>` is how many frames per second of video are kept; `-q:v 2` gives high JPEG quality. Repeat for each clip with its own folder. Exact `fps` values used: **TODO**.
-
-The same for all sets at once (reads `data/raw_videos/<set>/*.mp4`, default `fps=3`):
+For one video it runs:
 
 ```bash
-./scripts/extract_frames.sh            # all sets
-./scripts/extract_frames.sh train_a    # one set
+ffmpeg -i data/raw_videos/train_a/<video>.mp4 -vf fps=3 data/frames/train_a/frame_%04d.jpg
 ```
+
+Frames are named `frame_0001.jpg`, `frame_0002.jpg`, ...; each label file later uses the same name (`frame_0001.txt`).
 
 ### What the data looks like
 
