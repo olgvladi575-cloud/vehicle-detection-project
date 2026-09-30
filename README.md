@@ -9,14 +9,17 @@ Data, pre-labeling and the labeling pipeline are described below.
 
 ### How the frames were obtained
 
-1. The videos were downloaded from public sources by link.
-   Source URLs:
-   train A, highway interchange, pexels.com/video/8968356
-   train B, rural highway, light traffic, pexels.com/video/5382494
-   train C, simple highway, top-down, pexels.com/video/8457857
-   train D, urban intersection, pexels.com/video/3405804
-   eval, city highway, daytime, pexels.com/video/32179597
-2. Each video was split into frames with **FFmpeg** (command-line tool, https://ffmpeg.org).
+1. The videos were downloaded from public sources (Pexels) by link:
+
+   | Set     | Scene                        | Source                                                              |
+   | ------- | ---------------------------- | ------------------------------------------------------------------- |
+   | train_a | Highway interchange          | [pexels.com/video/8968356](https://www.pexels.com/video/8968356/)   |
+   | train_b | Rural highway, light traffic | [pexels.com/video/5382494](https://www.pexels.com/video/5382494/)   |
+   | train_c | Simple highway, top-down     | [pexels.com/video/8457857](https://www.pexels.com/video/8457857/)   |
+   | train_d | Urban intersection           | [pexels.com/video/3405804](https://www.pexels.com/video/3405804/)   |
+   | eval    | City highway, daytime        | [pexels.com/video/32179597](https://www.pexels.com/video/32179597/) |
+
+2. Each video was split into frames with **FFmpeg** (command-line tool, [ffmpeg.org](https://ffmpeg.org)).
 
 Install FFmpeg (macOS):
 
@@ -190,7 +193,7 @@ Actions > Export task dataset > YOLO 1.1 (images off). Unzip and copy `obj_train
 
 | Set       | Frames  | Boxes    | Avg per frame | Run time (CPU) |
 | --------- | ------- | -------- | ------------- | -------------- |
-| train_a   | 58      | 1608     | ~28           | n/a            |
+| train_a   | 58      | 1608     | ~28 ~ ~5 min  |
 | train_b   | 94      | 806      | ~8.6          | ~15 min        |
 | train_c   | 51      | 1513     | ~29.7         | ~10 min        |
 | train_d   | 73      | 2177     | ~29.8         | ~15 min        |
@@ -199,7 +202,6 @@ Actions > Export task dataset > YOLO 1.1 (images off). Unzip and copy `obj_train
 - Run times are approximate (wall clock, noted by hand: train_c 13:50-14:00, train_d 14:00-14:15).
 - train_b (rural highway, light traffic) gives far fewer boxes per frame than the other sets, which is consistent with its sparse traffic.
 - Box counts are raw model output, not checked for false positives.
-
 
 ## Training
 
