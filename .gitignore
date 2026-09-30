@@ -1,12 +1,5 @@
-# Сирі відео та кадри зазвичай важкі — не варто тримати в git напряму,
-# якщо тільки не плануєте Git LFS. Розкоментуйте, якщо не потрібно версіонувати:
-# data/raw_videos/*
-# data/frames/*
-# !data/raw_videos/.gitkeep
-# !data/frames/.gitkeep
-
-__pycache__/
-*.pyc
 .venv/
+*.zip
 *.pt
-runs/
+__pycache__/
+.DS_Store
