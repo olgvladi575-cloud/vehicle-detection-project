@@ -26,8 +26,9 @@ from make_cvat_zip import build_zip
 VEHICLE_COCO_CLASSES = {"car", "truck", "bus", "motorcycle"}
 VEHICLE_CLASS_ID = 0  # the only class in this task
 
-FRAMES_DIR = Path("data/frames")
-LABELS_DIR = Path("data/yolo/labels")
+ROOT = Path(__file__).resolve().parents[1]  # project root
+FRAMES_DIR = ROOT / "data" / "frames"
+LABELS_DIR = ROOT / "data" / "yolo" / "labels"
 
 DEFAULT_ROLES = ["train_a", "train_b", "train_c", "train_d"]
 

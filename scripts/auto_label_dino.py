@@ -19,8 +19,9 @@ from make_cvat_zip import build_zip
 
 MODEL_ID = "IDEA-Research/grounding-dino-tiny"
 PROMPT = "car. truck. bus. motorcycle."  # lowercase, a period after each word
-FRAMES_DIR = Path("data/frames")
-OUT_DIR = Path("data/gdino/labels")
+ROOT = Path(__file__).resolve().parents[1]  # project root
+FRAMES_DIR = ROOT / "data" / "frames"
+OUT_DIR = ROOT / "data" / "gdino" / "labels"
 ROLES = ["train_a", "train_b", "train_c", "train_d"]
 
 

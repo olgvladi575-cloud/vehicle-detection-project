@@ -118,9 +118,11 @@ Tasks > `+` > Create a new task:
 
 ### 5.3 Import pre-labels
 
-Actions > Upload annotations > format **YOLO 1.1** > mode **Replace** > choose `data/yolo/cvat_zip/<set>_yolo.zip` or `data/gdino/cvat_zip/<set>_gdino.zip` > OK > confirm.
+Actions > Upload annotations > format **YOLO 1.1** > mode **Replace** > choose `data/gdino/cvat_zip/<set>_gdino.zip` > OK > confirm.
 
-Check: in the Requests tab the import is Finished with no error; in the job editor, Info shows the same number of boxes as the source `.txt` files (for example `train_a`: 56 from YOLOv8n).
+Grounding DINO pre-labels are the starting point for correction (see the pre-labeling comparison in the [README](../README.md#pre-labeling-comparison-train_a-58-frames)). The YOLOv8n archives in `data/yolo/cvat_zip/` are kept only for comparison.
+
+Check: in the Requests tab the import is Finished with no error; in the job editor, Info shows the same number of boxes as the source `.txt` files (for example `train_a`: 1608 from Grounding DINO).
 
 ### 5.4 Review and correct
 

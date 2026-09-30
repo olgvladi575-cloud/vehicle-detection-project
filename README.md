@@ -13,6 +13,35 @@ The work follows four stages:
 
 📄 Annotation rules, tool and workflow: [**Annotation Guidelines**](docs/ANNOTATION_GUIDELINES.md)
 
+## Quick start
+
+Frames and model pre-labels are already in the repository, so no videos need to be downloaded.
+
+Requirements:
+
+- **Python 3.10+**
+- **Docker Desktop**, to run CVAT
+- **FFmpeg**, only to re-extract frames from videos (not needed for the steps below)
+
+```bash
+# 1. Get the project
+git clone https://github.com/olgvladi575-cloud/vehicle-detection-project.git
+cd vehicle-detection-project
+
+# 2. Create a virtual environment and install dependencies
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 3. Build CVAT import archives from the existing pre-labels
+python3 scripts/make_cvat_zip.py --role all --source gdino   # -> data/gdino/cvat_zip/
+python3 scripts/make_cvat_zip.py --role all --source yolo    # -> data/yolo/cvat_zip/
+```
+
+Then start CVAT and load the archives: see [Annotation Guidelines, sections 1 and 5](docs/ANNOTATION_GUIDELINES.md#1-tool-cvat).
+
+Re-running the models is optional (the results are already in `data/*/labels/`), see [Pre-labeling](#pre-labeling).
+
 ## Task
 
 Detect vehicles in drone footage taken at altitude. One class: `vehicle`.
@@ -93,7 +122,7 @@ Labels are not drawn from scratch. Frames are first pre-labeled by pretrained mo
 
 ### Setup
 
-Requires Python 3, Docker Desktop (for CVAT) and FFmpeg.
+Requires Python 3.10+, Docker Desktop (for CVAT) and FFmpeg (only to re-extract frames).
 
 ```bash
 python3 -m venv .venv
@@ -123,7 +152,7 @@ Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`
 
 - YOLOv8n misses most vehicles: the input is downscaled and vehicles are only a few pixels wide. Example: `frame_0032` has one box but dozens of visible vehicles.
 - Grounding DINO finds about 28x more boxes. More boxes does not mean better: some are likely false positives (shadows, road markings). A sampled precision check is **TODO**.
-- Which model is used as the starting point for correction: **TODO** (decided on training data only).
+- **Decision: Grounding DINO pre-labels are the starting point for manual correction in CVAT.** YOLOv8n misses almost all vehicles, so correcting it would mean drawing nearly every box by hand. With Grounding DINO most vehicles are already boxed, and removing false positives is faster than adding missed boxes. The decision is based on training data only.
 
 ### Grounding DINO on all training sets
 
