@@ -1,5 +1,12 @@
 .venv/
-*.zip
-*.pt
 __pycache__/
 .DS_Store
+
+# model weights (downloaded automatically)
+*.pt
+
+# CVAT archives (generated, large)
+*.zip
+
+# source videos (large)
+data/raw_videos/

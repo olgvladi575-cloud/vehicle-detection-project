@@ -1,18 +1,18 @@
 """
-Авто-розмітка кадрів готовою (не тренованою нами) моделлю YOLOv8n (COCO-pretrained).
+Pre-labels frames with an off-the-shelf (not fine-tuned) YOLOv8n model (COCO-pretrained).
 
-Що робить:
-  - Бере кадри з data/frames/<role>/
-  - Прогоняє через YOLOv8n (ваги COCO скачаються автоматично при першому запуску)
-  - Залишає тільки боксии класів car/truck/bus/motorcycle
-  - Перемаплює їх усі в один клас "vehicle" (id = 0)
-  - Зберігає розмітку у форматі YOLO .txt в data/yolo/labels/<role>/
-    (один .txt на кадр, формат рядка: "0 x_center y_center width height", нормалізовано 0..1)
+What it does:
+  - Reads frames from data/frames/<role>/
+  - Runs YOLOv8n (COCO weights download automatically on first run)
+  - Keeps only boxes of classes car/truck/bus/motorcycle
+  - Maps them all to one class "vehicle" (id = 0)
+  - Saves YOLO .txt labels to data/yolo/labels/<role>/
+    (one .txt per frame, line format: "0 x_center y_center width height", normalized 0..1)
 
-Використання:
-  python3 scripts/auto_label.py                 # усі ролі train_a..train_d
-  python3 scripts/auto_label.py --role train_a  # тільки одна роль (smoke-test)
-  python3 scripts/auto_label.py --conf 0.25      # змінити поріг впевненості
+Usage:
+  python3 scripts/auto_label.py                 # all roles train_a..train_d
+  python3 scripts/auto_label.py --role train_a  # one role only (smoke test)
+  python3 scripts/auto_label.py --conf 0.25      # change the confidence threshold
 """
 
 import argparse
@@ -22,9 +22,9 @@ from ultralytics import YOLO
 
 from make_cvat_zip import build_zip
 
-# COCO-класи, які вважаємо "vehicle" для цієї задачі.
+# COCO classes treated as "vehicle" in this task.
 VEHICLE_COCO_CLASSES = {"car", "truck", "bus", "motorcycle"}
-VEHICLE_CLASS_ID = 0  # єдиний клас у нашій задачі
+VEHICLE_CLASS_ID = 0  # the only class in this task
 
 FRAMES_DIR = Path("data/frames")
 LABELS_DIR = Path("data/yolo/labels")
@@ -35,7 +35,7 @@ DEFAULT_ROLES = ["train_a", "train_b", "train_c", "train_d"]
 def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> None:
     frames_dir = FRAMES_DIR / role
     if not frames_dir.exists():
-        print(f"⚠️  {frames_dir} не існує — пропускаю {role}")
+        print(f"⚠️  {frames_dir} does not exist, skipping {role}")
         return
 
     out_dir = LABELS_DIR / role
@@ -43,10 +43,10 @@ def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> No
 
     frame_paths = sorted(frames_dir.glob("*.jpg"))
     if not frame_paths:
-        print(f"⚠️  Немає .jpg кадрів у {frames_dir} — пропускаю {role}")
+        print(f"⚠️  No .jpg frames in {frames_dir}, skipping {role}")
         return
 
-    print(f"→ {role}: розмічаю {len(frame_paths)} кадрів (conf>={conf}) ...")
+    print(f"→ {role}: labeling {len(frame_paths)} frames (conf>={conf}) ...")
 
     total_boxes = 0
     frames_with_boxes = 0
@@ -63,7 +63,7 @@ def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> No
             cls_name = model.names[int(box.cls[0])]
             if cls_name not in VEHICLE_COCO_CLASSES:
                 continue
-            x, y, w, h = box.xywhn[0].tolist()  # вже нормалізовано 0..1
+            x, y, w, h = box.xywhn[0].tolist()  # already normalized 0..1
             lines.append(f"{VEHICLE_CLASS_ID} {x:.6f} {y:.6f} {w:.6f} {h:.6f}")
 
         label_path = out_dir / f"{frame_path.stem}.txt"
@@ -74,8 +74,8 @@ def label_role(model: YOLO, role: str, conf: float, make_zip: bool = True) -> No
         total_boxes += len(lines)
 
     print(
-        f"  готово: {total_boxes} боксів на {len(frame_paths)} кадрах "
-        f"({frames_with_boxes} кадрів з хоча б одним боксом)"
+        f"  done: {total_boxes} boxes on {len(frame_paths)} frames "
+        f"({frames_with_boxes} frames with at least one box)"
     )
     if make_zip:
         build_zip(role, "yolo")
@@ -85,19 +85,19 @@ def main():
     parser = argparse.ArgumentParser(description="Auto-label frames with YOLOv8n (COCO)")
     parser.add_argument(
         "--role", type=str, default=None,
-        help="Обробити тільки одну роль (напр. train_a). Без аргументу — всі train-ролі.",
+        help="Process one role only (e.g. train_a). Without it, all train roles.",
     )
     parser.add_argument(
         "--conf", type=float, default=0.25,
-        help="Поріг впевненості детекції (default: 0.25)",
+        help="Detection confidence threshold (default: 0.25)",
     )
     parser.add_argument(
         "--no-zip", action="store_true",
-        help="Не створювати zip для CVAT у data/yolo/cvat_zip/ після розмітки.",
+        help="Do not build the CVAT zip in data/yolo/cvat_zip/ after labeling.",
     )
     args = parser.parse_args()
 
-    print("Завантажую YOLOv8n (COCO-pretrained) — без тренування, лише inference ...")
+    print("Loading YOLOv8n (COCO-pretrained), inference only, no training ...")
     model = YOLO("yolov8n.pt")
 
     roles = [args.role] if args.role else DEFAULT_ROLES
@@ -105,8 +105,8 @@ def main():
     for role in roles:
         label_role(model, role, args.conf, make_zip=not args.no_zip)
 
-    print("\nГотово. Сира розмітка збережена в data/yolo/labels/<role>/")
-    print("zip для CVAT: data/yolo/cvat_zip/<role>_yolo.zip. Наступний крок: імпорт у CVAT для перевірки й корекції.")
+    print("\nDone. Raw labels saved to data/yolo/labels/<role>/")
+    print("CVAT zip: data/yolo/cvat_zip/<role>_yolo.zip. Next step: import into CVAT for review and correction.")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,20 @@
 
 ![Drone frame with vehicle pre-labels](docs/images/screen.png)
 
-Detect vehicles in drone footage taken at altitude. One class: `vehicle` (id 0). Car, truck, bus and motorcycle are merged, because from this height they are only a few pixels wide and hard to tell apart reliably.
+This is a test project. It shows how I plan and carry out the work with data for an object detector: from raw drone video to a labeled dataset, then training and measurement. The focus is on the dataset: every step is documented and can be repeated with the scripts in this repository.
+
+The work follows four stages:
+
+1. [**Plan**](#1-plan): what data is needed, where it comes from, how it is split.
+2. [**Label**](#2-label): pre-labeling with pretrained models, manual correction in CVAT.
+3. [**Train**](#3-train): TODO.
+4. [**Measure**](#4-measure): TODO.
+
+📄 Annotation rules, tool and workflow: [**Annotation Guidelines**](docs/ANNOTATION_GUIDELINES.md)
+
+## Task
+
+Detect vehicles in drone footage taken at altitude. One class: `vehicle`.
 
 ## 1. Plan
 
@@ -59,18 +72,18 @@ All frames are `.jpg`, shot from a drone at altitude. Vehicles are very small (a
 
 Shared data (frames) is kept once; everything produced by a model lives in that model's own folder.
 
-| Path                          | Content                                         | In git              |
-| ----------------------------- | ----------------------------------------------- | ------------------- |
-| `data/raw_videos/<set>/`      | Source videos                                   | No                  |
-| `data/frames/<set>/`          | Extracted frames (shared by both models)        | Yes                 |
-| `data/yolo/labels/<set>/`     | Pre-labels from YOLOv8n (YOLO txt)              | Yes                 |
-| `data/yolo/cvat_zip/`         | CVAT import archives `<set>_yolo.zip`           | No (generated)      |
-| `data/gdino/labels/<set>/`    | Pre-labels from Grounding DINO (YOLO txt)       | Yes                 |
-| `data/gdino/cvat_zip/`        | CVAT import archives `<set>_gdino.zip`          | No (generated)      |
-| `data/cvat_export/<set>.zip`  | Export from CVAT after manual review (YOLO 1.1) | No                  |
-| `data/annotations/<set>/`     | Final labels after manual review in CVAT        | TODO (after review) |
-| `scripts/`                    | Frame extraction, pre-labeling, CVAT import     | Yes                 |
-| `docs/`                       | Annotation guidelines and images                | Yes                 |
+| Path                         | Content                                         |
+| ---------------------------- | ----------------------------------------------- |
+| `data/raw_videos/<set>/`     | Source videos                                   |
+| `data/frames/<set>/`         | Extracted frames (shared by both models)        |
+| `data/yolo/labels/<set>/`    | Pre-labels from YOLOv8n (YOLO txt)              |
+| `data/yolo/cvat_zip/`        | CVAT import archives `<set>_yolo.zip`           |
+| `data/gdino/labels/<set>/`   | Pre-labels from Grounding DINO (YOLO txt)       |
+| `data/gdino/cvat_zip/`       | CVAT import archives `<set>_gdino.zip`          |
+| `data/cvat_export/<set>.zip` | Export from CVAT after manual review (YOLO 1.1) |
+| `data/annotations/<set>/`    | Final labels after manual review in CVAT        |
+| `scripts/`                   | Frame extraction, pre-labeling, CVAT import     |
+| `docs/`                      | Annotation guidelines and images                |
 
 ---
 

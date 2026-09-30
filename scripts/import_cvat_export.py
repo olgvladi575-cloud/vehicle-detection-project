@@ -1,12 +1,12 @@
 """
-Забирає виправлену розмітку з експорту CVAT (формат YOLO 1.1) у data/annotations/<role>/.
+Imports corrected labels from a CVAT export (YOLO 1.1 format) into data/annotations/<role>/.
 
-Експорт з CVAT кладемо як data/cvat_export/<role>.zip (напр. data/cvat_export/train_a.zip).
-Скрипт:
-  - бере з архіву obj_train_data/*.txt (картинки, якщо є, ігноруються)
-  - перевіряє, що на кожен кадр з data/frames/<role>/ є .txt (кадр без боксів -> порожній .txt)
-  - перевіряє, що в розмітці лише клас 0 (vehicle)
-  - друкує кількість боксів
+Put the CVAT export at data/cvat_export/<role>.zip (e.g. data/cvat_export/train_a.zip).
+The script:
+  - takes obj_train_data/*.txt from the archive (images, if any, are ignored)
+  - writes one .txt per frame in data/frames/<role>/ (frame without boxes -> empty .txt)
+  - checks that only class 0 (vehicle) is used
+  - prints the box count
 
   python3 scripts/import_cvat_export.py --role train_a
   python3 scripts/import_cvat_export.py --role all
@@ -16,7 +16,7 @@ import argparse
 import zipfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]  # корінь проєкту
+ROOT = Path(__file__).resolve().parents[1]  # project root
 FRAMES_DIR = ROOT / "data" / "frames"
 EXPORT_DIR = ROOT / "data" / "cvat_export"
 OUT_DIR = ROOT / "data" / "annotations"
@@ -26,7 +26,7 @@ ROLES = ["train_a", "train_b", "train_c", "train_d"]
 def import_role(role: str) -> None:
     src = EXPORT_DIR / f"{role}.zip"
     if not src.exists():
-        print(f"⚠️  {role}: немає {src.relative_to(ROOT)} — пропускаю")
+        print(f"⚠️  {role}: {src.relative_to(ROOT)} not found, skipping")
         return
 
     with zipfile.ZipFile(src) as z:
@@ -39,7 +39,7 @@ def import_role(role: str) -> None:
     frames = sorted((FRAMES_DIR / role).glob("frame_*.jpg"))
     extra = set(labels) - {p.stem for p in frames}
     if extra:
-        print(f"❌ {role}: у експорті є .txt без кадру: {sorted(extra)[:5]} — перевірте, що це правильний архів")
+        print(f"❌ {role}: export has .txt files with no matching frame: {sorted(extra)[:5]}; check that this is the right archive")
         return
 
     out = OUT_DIR / role
@@ -50,18 +50,18 @@ def import_role(role: str) -> None:
         lines = [l for l in text.splitlines() if l.strip()]
         bad = [l for l in lines if l.split()[0] != "0"]
         if bad:
-            print(f"❌ {role}/{p.stem}: клас не 0: {bad[0]!r} — у CVAT має бути лише мітка vehicle")
+            print(f"❌ {role}/{p.stem}: class is not 0: {bad[0]!r}; the CVAT task must have only the vehicle label")
             return
         (out / f"{p.stem}.txt").write_text("\n".join(lines))
         total += len(lines)
         empty += not lines
 
-    print(f"{role}: {total} боксів на {len(frames)} кадрах ({empty} кадрів без боксів) -> {out.relative_to(ROOT)}")
+    print(f"{role}: {total} boxes on {len(frames)} frames ({empty} frames without boxes) -> {out.relative_to(ROOT)}")
 
 
 def main():
     ap = argparse.ArgumentParser(description="Import corrected labels from a CVAT YOLO 1.1 export")
-    ap.add_argument("--role", default="all", help="train_a..train_d або all")
+    ap.add_argument("--role", default="all", help="train_a..train_d or all")
     args = ap.parse_args()
     for role in (ROLES if args.role == "all" else [args.role]):
         import_role(role)

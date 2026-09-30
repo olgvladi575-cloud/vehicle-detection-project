@@ -163,17 +163,17 @@ data/
 
 ## 6. Where the data is stored
 
-| Path                           | Content                                       | In git              |
-| ------------------------------ | --------------------------------------------- | ------------------- |
-| `data/raw_videos/<set>/`       | Source videos                                 | No                  |
-| `data/frames/<set>/`           | Frames `frame_0001.jpg`, ...                  | Yes                 |
-| `data/yolo/labels/<set>/`      | YOLOv8n pre-labels, one `.txt` per frame      | Yes                 |
-| `data/yolo/cvat_zip/`          | CVAT import archives `<set>_yolo.zip`         | No (generated)      |
-| `data/gdino/labels/<set>/`     | Grounding DINO pre-labels                     | Yes                 |
-| `data/gdino/cvat_zip/`         | CVAT import archives `<set>_gdino.zip`        | No (generated)      |
-| `data/cvat_export/<set>.zip`   | Export from CVAT after review (YOLO 1.1)      | No                  |
-| `data/annotations/<set>/`      | **Final labels** after review (used to train) | TODO (after review) |
-| CVAT Docker volumes            | Tasks and annotations in progress             | No                  |
+| Path                           | Content                                       |
+| ------------------------------ | --------------------------------------------- |
+| `data/raw_videos/<set>/`       | Source videos                                 |
+| `data/frames/<set>/`           | Frames `frame_0001.jpg`, ...                  |
+| `data/yolo/labels/<set>/`      | YOLOv8n pre-labels, one `.txt` per frame      |
+| `data/yolo/cvat_zip/`          | CVAT import archives `<set>_yolo.zip`         |
+| `data/gdino/labels/<set>/`     | Grounding DINO pre-labels                     |
+| `data/gdino/cvat_zip/`         | CVAT import archives `<set>_gdino.zip`        |
+| `data/cvat_export/<set>.zip`   | Export from CVAT after review (YOLO 1.1)      |
+| `data/annotations/<set>/`      | **Final labels** after review (used to train) |
+| CVAT Docker volumes            | Tasks and annotations in progress             |
 
 Label file format (YOLO): one line per box, `0 x_center y_center width height`, all values normalized to 0-1. The `.txt` file has the same name as its frame.
 

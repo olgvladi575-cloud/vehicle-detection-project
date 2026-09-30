@@ -1,3 +1,9 @@
-ultralytics
-opencv-python
-numpy
+# Tested with Python 3.13 on macOS (CPU).
+
+# YOLOv8n pre-labeling (scripts/auto_label.py)
+ultralytics==8.4.165
+
+# Grounding DINO pre-labeling (scripts/auto_label_dino.py)
+torch==2.14.0
+transformers==5.17.0
+pillow==12.3.0
