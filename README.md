@@ -11,7 +11,7 @@ The work follows four stages:
 3. [**Train**](#3-train): TODO.
 4. [**Measure**](#4-measure): TODO.
 
-📄 Annotation rules, tool and workflow: [**Annotation Guidelines**](docs/ANNOTATION_GUIDELINES.md)
+📄 How to annotate (labeling rules and examples): [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2)
 
 ## Pipeline
 
@@ -23,14 +23,14 @@ pip install -r requirements.txt
 
 All commands are run from the project root.
 
-| Step                             | Command / action                                                                                              | Output                                                            |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| 1. Extract frames                | `bash scripts/extract_frames.sh` (fps=3, see [Frame extraction](#frame-extraction))                           | `data/frames/<set>/`                                              |
-| 2. Pre-label with Grounding DINO | `python3 scripts/auto_label_dino.py --role all`                                                               | `data/gdino/labels/<set>/`, `data/gdino/cvat_zip/<set>_gdino.zip` |
-| 3. Correct in CVAT               | import `<set>_gdino.zip`, fix boxes, export YOLO 1.1 ([guidelines](docs/ANNOTATION_GUIDELINES.md#5-workflow)) | `data/cvat_export/<set>.zip`                                      |
-| 4. Collect final labels          | `python3 scripts/import_cvat_export.py --role all`                                                            | `data/annotations/<set>/`                                         |
-| 5. Train                         | TODO                                                                                                          |                                                                   |
-| 6. Measure                       | TODO                                                                                                          |                                                                   |
+| Step                             | Command / action                                                                                                   | Output                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| 1. Extract frames                | `bash scripts/extract_frames.sh` (fps=3, see [Frame extraction](#frame-extraction))                                | `data/frames/<set>/`                                              |
+| 2. Pre-label with Grounding DINO | `python3 scripts/auto_label_dino.py --role all`                                                                    | `data/gdino/labels/<set>/`, `data/gdino/cvat_zip/<set>_gdino.zip` |
+| 3. Correct in CVAT               | import `<set>_gdino.zip`, fix boxes by the [rules](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2), export YOLO 1.1 ([CVAT workflow](#cvat-workflow)) | `data/cvat_export/<set>.zip`                                      |
+| 4. Collect final labels          | `python3 scripts/import_cvat_export.py --role all`                                                                 | `data/annotations/<set>/`                                         |
+| 5. Train                         | TODO                                                                                                               |                                                                   |
+| 6. Measure                       | TODO                                                                                                               |                                                                   |
 
 ## Task
 
@@ -104,25 +104,33 @@ Shared data (frames) is kept once; everything produced by a model lives in that 
 | `data/cvat_export/<set>.zip` | Export from CVAT after manual review (YOLO 1.1) |
 | `data/annotations/<set>/`    | Final labels after manual review in CVAT        |
 | `scripts/`                   | Frame extraction, pre-labeling, CVAT import     |
-| `docs/`                      | Annotation guidelines and images                |
+| `docs/images/`               | Images for the README                           |
 
 ---
 
 ## 2. Label
 
-Labels are not drawn from scratch. Frames are first pre-labeled by pretrained models, then every frame is reviewed and corrected by hand in **CVAT**. The full process (tool, rules for boxes, examples, where files are stored) is in 📄 [**Annotation Guidelines**](docs/ANNOTATION_GUIDELINES.md).
+Labels are not drawn from scratch. Frames are first pre-labeled by pretrained models, then every frame is reviewed and corrected by hand in **CVAT**.
 
-### Setup
+- **How to annotate** (what counts as a vehicle, how to draw a box, examples, quality check): 📄 [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2).
+- **Tool setup and CVAT steps**: below in this README.
 
-Requires Python 3.10+, Docker Desktop (for CVAT) and FFmpeg (only to re-extract frames).
+### CVAT setup
+
+Labeling is done in [CVAT](https://github.com/cvat-ai/cvat), run locally in Docker. It supports YOLO import/export, so pre-labels from the models can be loaded and corrected instead of drawing every box from scratch.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+git clone https://github.com/cvat-ai/cvat ~/cvat
+cd ~/cvat
+docker compose up -d
+docker compose ps                  # all containers should be "Up"
+docker exec -it cvat_server bash -ic 'python3 ~/manage.py createsuperuser'
 ```
 
-CVAT installation is described in the [guidelines](docs/ANNOTATION_GUIDELINES.md#1-tool-cvat).
+Open <http://localhost:8080> and log in with the created account.
+
+- CVAT needs several GB of RAM. If it reports `Required services are not healthy`, raise Docker Desktop memory (Settings > Resources) to 6-8 GB and restart.
+- Annotations live in Docker volumes. Stop with `docker compose down`; never add `-v`, it deletes all tasks and annotations.
 
 ### Pre-labeling
 
@@ -158,6 +166,28 @@ Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`
 
 - Run times are approximate (wall clock, noted by hand).
 - train_b (rural highway, light traffic) gives far fewer boxes per frame, which matches its sparse traffic.
+
+### CVAT workflow
+
+Each set (`train_a` ... `train_d`) is a separate CVAT task.
+
+1. **Create the task:** Tasks > `+` > Create a new task.
+   - Name: the set name, e.g. `train_a`.
+   - Labels: add `vehicle`, type Rectangle. Required, otherwise import fails with `Label 'vehicle' is not registered for this task`.
+   - My computer: select all `.jpg` from `data/frames/<set>/`. The count must match the set (58 / 94 / 51 / 73).
+   - Advanced configuration: sorting method **Natural**, image quality **95** (vehicles are tiny).
+2. **Import pre-labels:** Actions > Upload annotations > **YOLO 1.1** > mode Replace > `data/gdino/cvat_zip/<set>_gdino.zip`. If the zip is missing, build it: `python3 scripts/make_cvat_zip.py --role all --source gdino`. Check that the box count in Info matches the source (train_a: 1608).
+3. **Correct:** go frame by frame following the [Annotation Guidelines](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2). Save often (Ctrl+S).
+4. **Export:** Actions > Export task dataset > **YOLO 1.1**, Save images off. Download the zip from the Requests tab, rename it to `<set>.zip` and put it into `data/cvat_export/`.
+5. **Collect final labels:**
+
+   ```bash
+   python3 scripts/import_cvat_export.py --role train_a   # or --role all
+   ```
+
+   The script copies the labels to `data/annotations/<set>/`, writes an empty `.txt` for frames without vehicles, checks that the archive belongs to this set and that only class `0` is used, and prints the box count.
+
+Label format (YOLO): one line per box, `0 x_center y_center width height`, normalized to 0-1; the `.txt` has the same name as its frame.
 
 ### Labeling status
 
