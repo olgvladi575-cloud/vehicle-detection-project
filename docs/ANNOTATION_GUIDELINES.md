@@ -126,9 +126,38 @@ Check: in the Requests tab the import is Finished with no error; in the job edit
 
 Go frame by frame and apply the rules from sections 2-3: add missed vehicles, delete false boxes, tighten loose boxes. Save often (Ctrl+S). Keep a short log per set (see section 7).
 
-### 5.5 Export
+### 5.5 Export from CVAT
 
-Actions > Export task dataset > **YOLO 1.1**, images off. Unzip and copy `obj_train_data/*.txt` to `data/labels_corrected/<set>/`.
+When all frames of a set are corrected and saved:
+
+1. Tasks > open the task (e.g. `train_a`) > **Actions > Export task dataset**.
+2. Export format: **YOLO 1.1**. Save images: **off** (frames are already in `data/frames/`).
+3. OK. When the export is ready (Requests tab), download the zip.
+4. Rename it to the set name and put it into `data/cvat_export/`:
+
+   ```
+   data/cvat_export/train_a.zip
+   data/cvat_export/train_b.zip
+   ...
+   ```
+
+5. Unpack the labels into the final dataset folder:
+
+   ```bash
+   python3 scripts/import_cvat_export.py --role train_a   # or --role all
+   ```
+
+   The script copies `obj_train_data/*.txt` to `data/annotations/<set>/`, writes an empty `.txt` for frames without vehicles, checks that every label belongs to a frame of this set and that only class `0` is used, and prints the number of boxes and of frames without boxes. Write that box count into the log (section 7) and into the labeling status table in the README.
+
+Result for each set:
+
+```
+data/
+├── frames/train_a/frame_0001.jpg ...        images
+└── annotations/train_a/frame_0001.txt ...   corrected labels, same file names
+```
+
+`data/annotations/` is the dataset used for training. The CVAT export zips in `data/cvat_export/` are not committed (`*.zip` is in `.gitignore`).
 
 ---
 
@@ -142,7 +171,8 @@ Actions > Export task dataset > **YOLO 1.1**, images off. Unzip and copy `obj_tr
 | `data/yolo/cvat_zip/`          | CVAT import archives `<set>_yolo.zip`         | No (generated)      |
 | `data/gdino/labels/<set>/`     | Grounding DINO pre-labels                     | Yes                 |
 | `data/gdino/cvat_zip/`         | CVAT import archives `<set>_gdino.zip`        | No (generated)      |
-| `data/labels_corrected/<set>/` | **Final labels** after review (used to train) | TODO (after review) |
+| `data/cvat_export/<set>.zip`   | Export from CVAT after review (YOLO 1.1)      | No                  |
+| `data/annotations/<set>/`      | **Final labels** after review (used to train) | TODO (after review) |
 | CVAT Docker volumes            | Tasks and annotations in progress             | No                  |
 
 Label file format (YOLO): one line per box, `0 x_center y_center width height`, all values normalized to 0-1. The `.txt` file has the same name as its frame.

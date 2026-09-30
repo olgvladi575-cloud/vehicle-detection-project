@@ -67,8 +67,9 @@ Shared data (frames) is kept once; everything produced by a model lives in that 
 | `data/yolo/cvat_zip/`         | CVAT import archives `<set>_yolo.zip`           | No (generated)      |
 | `data/gdino/labels/<set>/`    | Pre-labels from Grounding DINO (YOLO txt)       | Yes                 |
 | `data/gdino/cvat_zip/`        | CVAT import archives `<set>_gdino.zip`          | No (generated)      |
-| `data/labels_corrected/<set>/`| Final labels after manual review in CVAT        | TODO (after review) |
-| `scripts/`                    | Frame extraction, pre-labeling, CVAT zips       | Yes                 |
+| `data/cvat_export/<set>.zip`  | Export from CVAT after manual review (YOLO 1.1) | No                  |
+| `data/annotations/<set>/`     | Final labels after manual review in CVAT        | TODO (after review) |
+| `scripts/`                    | Frame extraction, pre-labeling, CVAT import     | Yes                 |
 | `docs/`                       | Annotation guidelines and images                | Yes                 |
 
 ---
