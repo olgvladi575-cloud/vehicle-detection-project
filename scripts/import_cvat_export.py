@@ -11,9 +11,9 @@ The script:
     a class other than 0 (vehicle), or if half or more of a frame's boxes are duplicates
   - prints the box count
 
-  python3 scripts/import_cvat_export.py --role train_a
-  python3 scripts/import_cvat_export.py --role all
-  python3 scripts/import_cvat_export.py --role train_c --frames 1-6
+  python scripts/import_cvat_export.py --role train_a
+  python scripts/import_cvat_export.py --role all
+  python scripts/import_cvat_export.py --role train_c --frames 1-6
 """
 
 import argparse

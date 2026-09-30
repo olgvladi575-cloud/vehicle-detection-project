@@ -5,8 +5,8 @@ Output: data/yolo_pre_labelling/cvat_zip/train_a_yolo.zip, data/gdino_pre_labell
 
 Called automatically by auto_label.py / auto_label_dino.py,
 or standalone:
-  python3 scripts/make_cvat_zip.py --role train_a --source yolo    # YOLOv8n
-  python3 scripts/make_cvat_zip.py --role all --source gdino       # Grounding DINO
+  python scripts/make_cvat_zip.py --role train_a --source yolo    # YOLOv8n
+  python scripts/make_cvat_zip.py --role all --source gdino       # Grounding DINO
 """
 
 import argparse

@@ -10,9 +10,9 @@ What it does:
     (one .txt per frame, line format: "0 x_center y_center width height", normalized 0..1)
 
 Usage:
-  python3 scripts/auto_label.py                 # all roles train_a..train_d
-  python3 scripts/auto_label.py --role train_a  # one role only (smoke test)
-  python3 scripts/auto_label.py --conf 0.25      # change the confidence threshold
+  python scripts/auto_label.py                 # all roles train_a..train_d
+  python scripts/auto_label.py --role train_a  # one role only (smoke test)
+  python scripts/auto_label.py --conf 0.25      # change the confidence threshold
 """
 
 import argparse

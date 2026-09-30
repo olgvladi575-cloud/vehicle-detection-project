@@ -4,8 +4,8 @@ Pre-labels frames with Grounding DINO (grounding-dino-tiny), inference only.
 Writes YOLO .txt to data/gdino_pre_labelling/labels/<role>/ and, unless --no-zip is given,
 builds the CVAT import zip: data/gdino_pre_labelling/cvat_zip/<role>_gdino.zip.
 
-  python3 scripts/auto_label_dino.py --role train_a
-  python3 scripts/auto_label_dino.py --role all      # train_a..train_d
+  python scripts/auto_label_dino.py --role train_a
+  python scripts/auto_label_dino.py --role all      # train_a..train_d
 """
 
 import argparse
