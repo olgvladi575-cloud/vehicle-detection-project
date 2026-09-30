@@ -11,7 +11,7 @@ The work follows four stages:
 3. [**Train**](#3-train): TODO.
 4. [**Measure**](#4-measure): TODO.
 
-📄 How to annotate (labeling rules and examples): [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2)
+📄 How to annotate (labeling rules and examples): [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-6d54e4b0f1dc83f497d181eca8d502ce)
 
 ## Pipeline
 
@@ -27,7 +27,7 @@ All commands are run from the project root.
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | 1. Extract frames                | `bash scripts/extract_frames.sh` (fps=3, see [Frame extraction](#frame-extraction))                                | `data/frames/<set>/`                                              |
 | 2. Pre-label with Grounding DINO | `python3 scripts/auto_label_dino.py --role all`                                                                    | `data/gdino/labels/<set>/`, `data/gdino/cvat_zip/<set>_gdino.zip` |
-| 3. Correct in CVAT               | import `<set>_gdino.zip`, fix boxes by the [rules](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2), export YOLO 1.1 ([CVAT workflow](#cvat-workflow)) | `data/cvat_export/<set>.zip`                                      |
+| 3. Correct in CVAT               | import `<set>_gdino.zip`, fix boxes by the [rules](https://app.notion.com/p/Annotation-Guidelines-6d54e4b0f1dc83f497d181eca8d502ce), export YOLO 1.1 ([CVAT workflow](#cvat-workflow)) | `data/cvat_export/<set>.zip`                                      |
 | 4. Collect final labels          | `python3 scripts/import_cvat_export.py --role all`                                                                 | `data/annotations/<set>/`                                         |
 | 5. Train                         | TODO                                                                                                               |                                                                   |
 | 6. Measure                       | TODO                                                                                                               |                                                                   |
@@ -112,7 +112,7 @@ Shared data (frames) is kept once; everything produced by a model lives in that 
 
 Labels are not drawn from scratch. Frames are first pre-labeled by pretrained models, then every frame is reviewed and corrected by hand in **CVAT**.
 
-- **How to annotate** (what counts as a vehicle, how to draw a box, examples, quality check): 📄 [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2).
+- **How to annotate** (what counts as a vehicle, how to draw a box, examples, quality check): 📄 [**Annotation Guidelines** (Notion)](https://app.notion.com/p/Annotation-Guidelines-6d54e4b0f1dc83f497d181eca8d502ce).
 - **Tool setup and CVAT steps**: below in this README.
 
 ### CVAT setup
@@ -177,7 +177,7 @@ Each set (`train_a` ... `train_d`) is a separate CVAT task.
    - My computer: select all `.jpg` from `data/frames/<set>/`. The count must match the set (58 / 94 / 51 / 73).
    - Advanced configuration: sorting method **Natural**, image quality **95** (vehicles are tiny).
 2. **Import pre-labels:** Actions > Upload annotations > **YOLO 1.1** > mode Replace > `data/gdino/cvat_zip/<set>_gdino.zip`. If the zip is missing, build it: `python3 scripts/make_cvat_zip.py --role all --source gdino`. Check that the box count in Info matches the source (train_a: 1608).
-3. **Correct:** go frame by frame following the [Annotation Guidelines](https://app.notion.com/p/Annotation-Guidelines-3eb4e4b0f1dc802bb1bdec5d2e8f53e2). Save often (Ctrl+S).
+3. **Correct:** go frame by frame following the [Annotation Guidelines](https://app.notion.com/p/Annotation-Guidelines-6d54e4b0f1dc83f497d181eca8d502ce). Save often (Ctrl+S).
 4. **Export:** Actions > Export task dataset > **YOLO 1.1**, Save images off. Download the zip from the Requests tab, rename it to `<set>.zip` and put it into `data/cvat_export/`.
 5. **Collect final labels:**
 
