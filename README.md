@@ -61,16 +61,7 @@ ffmpeg -i data/raw_videos/train_a/<video>.mp4 -vf fps=3 data/frames/train_a/fram
 
 Frames are named `frame_0001.jpg`, `frame_0002.jpg`, ...; each label file later uses the same name (`frame_0001.txt`).
 
-### Extracted frames
-
-| Set       | Frames  |
-| --------- | ------- |
-| train_a   | 58      |
-| train_b   | 94      |
-| train_c   | 51      |
-| train_d   | 73      |
-| **Total** | **276** |
-| eval      | TODO    |
+Result: 276 training frames.
 
 ## 2. Label
 
