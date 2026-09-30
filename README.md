@@ -1,4 +1,4 @@
-# Vehicle detection from drone footage
+# Vehicle detection
 
 ![Drone frame with vehicle pre-labels](docs/images/screen.png)
 
