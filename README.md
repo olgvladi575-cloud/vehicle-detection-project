@@ -32,8 +32,6 @@ All commands are run from the project root.
 | 5. Train                         | TODO                                                                                                          |                                                                   |
 | 6. Measure                       | TODO                                                                                                          |                                                                   |
 
-Steps 1 and 2 are already done: frames and pre-labels are in the repository, so the work can start from step 3. If step 2 is skipped, build the CVAT archives from the existing labels with `python3 scripts/make_cvat_zip.py --role all --source gdino`.
-
 ## Task
 
 Detect vehicles in drone footage taken at altitude. One class: `vehicle`.
@@ -66,8 +64,8 @@ Each video was downloaded from its source link into `data/raw_videos/<set>/` and
 The script [scripts/extract_frames.sh](scripts/extract_frames.sh) runs this for every set:
 
 ```bash
-bash scripts/extract_frames.sh            # all sets
-bash scripts/extract_frames.sh train_a    # one set
+bash scripts/extract_frames.sh
+bash scripts/extract_frames.sh train_a
 ```
 
 For one video it runs:
