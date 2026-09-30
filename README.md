@@ -91,14 +91,14 @@ Each script writes one YOLO `.txt` per frame (`0 x_center y_center width height`
 
 | Set       | Frames  | YOLOv8n boxes | Per frame | Grounding DINO boxes | Per frame | DINO run time |
 | --------- | ------- | ------------- | --------- | -------------------- | --------- | ------------- |
-| train_a   | 58      | 28            | ~0.5      | 1608                 | ~27.7     | ~5 min        |
-| train_b   | 94      | 26            | ~0.3      | 806                  | ~8.6      | ~15 min       |
-| train_c   | 51      | 128           | ~2.5      | 1513                 | ~29.7     | ~10 min       |
-| train_d   | 73      | 203           | ~2.8      | 2177                 | ~29.8     | ~15 min       |
-| **Total** | **276** | **385**       | ~1.4      | **6104**             | ~22.1     |               |
+| train_a   | 58      | 28            | ~0.5      | 1596                 | ~27.5     | ~5 min        |
+| train_b   | 94      | 26            | ~0.3      | 799                  | ~8.5      | ~15 min       |
+| train_c   | 51      | 128           | ~2.5      | 1422                 | ~27.9     | ~10 min       |
+| train_d   | 73      | 203           | ~2.8      | 2086                 | ~28.6     | ~15 min       |
+| **Total** | **276** | **385**       | ~1.4      | **5903**             | ~21.4     |               |
 
 - YOLOv8n misses most vehicles: the input is downscaled and vehicles are only a few pixels wide. Example: `train_a/frame_0032` has one box but dozens of visible vehicles.
-- Grounding DINO finds about 16x more boxes overall (57x on train_a). More boxes does not mean better: some are likely false positives (shadows, road markings). A sampled precision check is **TODO**.
+- Grounding DINO finds about 15x more boxes overall (57x on train_a). More boxes does not mean better: some are likely false positives (shadows, road markings). A sampled precision check is **TODO**.
 - train_b (rural highway, light traffic) gives the fewest boxes for both models, which matches its sparse traffic.
 - Run times are approximate (wall clock, noted by hand).
 - **Decision: Grounding DINO pre-labels are the starting point for manual correction in CVAT.** YOLOv8n misses almost all vehicles, so correcting it would mean drawing nearly every box by hand. With Grounding DINO most vehicles are already boxed, and removing false positives is faster than adding missed boxes. The decision is based on training data only.
@@ -129,7 +129,7 @@ Each set (`train_a` ... `train_d`) is a separate CVAT task.
    - Labels: add `vehicle`, type Rectangle. Required, otherwise import fails with `Label 'vehicle' is not registered for this task`.
    - My computer: select all `.jpg` from `data/frames/<set>/`. The count must match the set (58 / 94 / 51 / 73).
    - Advanced configuration: sorting method **Natural**, image quality **95** (vehicles are tiny).
-2. **Import pre-labels:** Actions > Upload annotations > **YOLO 1.1** > mode Replace > `data/gdino_pre_labelling/cvat_zip/<set>_gdino.zip`. If the zip is missing, build it: `python scripts/make_cvat_zip.py --role all --source gdino`. Check that the box count in Info matches the source (train_a: 1608).
+2. **Import pre-labels:** Actions > Upload annotations > **YOLO 1.1** > mode Replace > `data/gdino_pre_labelling/cvat_zip/<set>_gdino.zip`. If the zip is missing, build it: `python scripts/make_cvat_zip.py --role all --source gdino`. Check that the box count in Info matches the source (train_a: 1596).
 3. **Correct:** go frame by frame following the [Annotation Guidelines](https://app.notion.com/p/Annotation-Guidelines-6d54e4b0f1dc83f497d181eca8d502ce). Save often (Ctrl+S).
 4. **Export:** Actions > Export task dataset > **YOLO 1.1**, Save images off. Download the zip from the Requests tab, rename it to `<set>.zip` and put it into `data/cvat_export/`.
 5. **Collect final labels:**
@@ -149,9 +149,9 @@ A full manual pass over all 276 frames is the next step. To demonstrate the anno
 | Set     | Frames corrected          | Boxes before (DINO) | Boxes after correction | Stored in                   |
 | ------- | ------------------------- | ------------------- | ---------------------- | --------------------------- |
 | train_c | 6 of 51 (frame_0001-0006) | 89                  | 53                     | `data/annotations/train_c/` |
-| train_a | 0 of 58                   | 1608                | TODO                   |                             |
-| train_b | 0 of 94                   | 806                 | TODO                   |                             |
-| train_d | 0 of 73                   | 2177                | TODO                   |                             |
+| train_a | 0 of 58                   | 1596                | TODO                   |                             |
+| train_b | 0 of 94                   | 799                 | TODO                   |                             |
+| train_d | 0 of 73                   | 2086                | TODO                   |                             |
 
 On these 6 frames the box count went from 89 to 53 (-40%): a large part of the Grounding DINO boxes were wrong or redundant, which confirms that pre-labels cannot be used without manual review.
 
