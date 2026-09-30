@@ -182,14 +182,27 @@ Each set (`train_a` ... `train_d`) is a separate CVAT task.
 5. **Collect final labels:**
 
    ```bash
-   python3 scripts/import_cvat_export.py --role train_a   # or --role all
+   python3 scripts/import_cvat_export.py --role train_a               # one set
+   python3 scripts/import_cvat_export.py --role all                   # all sets
+   python3 scripts/import_cvat_export.py --role train_c --frames 1-6  # only corrected frames
    ```
 
-   The script copies the labels to `data/annotations/<set>/`, writes an empty `.txt` for frames without vehicles, checks that the archive belongs to this set and that only class `0` is used, and prints the box count.
+   The script copies the labels to `data/annotations/<set>/`, writes an empty `.txt` for frames without vehicles, checks that the archive belongs to this set and that only class `0` is used, removes exact duplicate boxes, and prints the box count. CVAT always exports the whole task; `--frames` keeps only the frames that were actually corrected.
 
 Label format (YOLO): one line per box, `0 x_center y_center width height`, normalized to 0-1; the `.txt` has the same name as its frame.
 
 ### Labeling status
+
+A full manual pass over all 276 frames is the next step. To demonstrate the annotation process end to end, the first 6 frames of `train_c` were corrected by hand in CVAT and exported into the dataset:
+
+| Set     | Frames corrected          | Boxes before (DINO) | Boxes after correction | Stored in                   |
+| ------- | ------------------------- | ------------------- | ---------------------- | --------------------------- |
+| train_c | 6 of 51 (frame_0001-0006) | 89                  | 53                     | `data/annotations/train_c/` |
+| train_a | 0 of 58                   | 1608                | TODO                   |                             |
+| train_b | 0 of 94                   | 806                 | TODO                   |                             |
+| train_d | 0 of 73                   | 2177                | TODO                   |                             |
+
+On these 6 frames the box count went from 89 to 53 (-40%): a large part of the Grounding DINO boxes were wrong or redundant, which confirms that pre-labels cannot be used without manual review. During this demo the pre-labels were accidentally imported into CVAT twice; the resulting exact duplicate boxes (32 on these frames) are removed by `import_cvat_export.py`. Lesson: after import, check the box count in CVAT Info against the pre-label count.
 
 ---
 
